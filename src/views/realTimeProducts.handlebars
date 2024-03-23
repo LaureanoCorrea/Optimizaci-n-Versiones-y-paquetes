@@ -1,0 +1,74 @@
+<div id="productList">
+    <h1>Listado de Productos</h1>
+
+  <table id="product_table">
+  <thead>
+    <tr>
+      <th>Nombre</th>
+      <th>Descripción</th>
+      <th>Precio</th>
+      <th>Código</th>
+      <th>Eliminar</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each productos}}
+    <tr>
+      <td>{{this._doc.title}}</td>
+      <td>{{this._doc.description}}</td>
+      <td>$ {{this._doc.price}}</td>
+      <td>{{this._doc.code}}</td>
+      <td><button type="button" class="delete_button" onclick='deleteProduct("{{this._doc._id}}")'>X</button></td>
+    </tr>
+    {{/each}}
+  </tbody>
+</table>
+
+</div>
+
+<div>
+    <h2>Agregar un producto</h2>
+
+    <form action="/realTimeProducts" method="POST" id="form_add" onsubmit="addProduct(); return false;">
+        <li>
+            <label for="title">Nombre del Producto:</label>
+            <input type="text" id="title" name="product_title" />
+        </li>
+        <li>
+            <label for="description">Descripción:</label>
+            <input type="text" id="description" name="product_description" />
+        </li>
+        <li>
+            <label for="price">Precio:</label>
+            <input type="text" id="price" name="product_price" />
+        </li>
+        <li>
+            <label for="thumbnail">Imagen:</label>
+            <input type="text" id="thumbnail" name="product_thumbnail" />
+        </li>
+        <li>
+            <label for="code">Código:</label>
+            <input type="text" id="code" name="product_code" />
+        </li>
+        <li>
+            <label for="stock">Stock:</label>
+            <input type="text" id="stock" name="product_stock" />
+        </li>
+        <li>
+            <label for="category">Categoría:</label>
+            <input id="category" name="product_category" />
+        </li>
+        <li>
+            <label for="status">Estado:</label>
+            <select id="status" name="product_status">
+                <option value="true">true</option>
+                <option value="false">false</option>
+        </li>
+        <li id="submit_button_list">
+            <input value="Agregar" type="submit" id="submit_button">
+        </li>
+    </form>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/index.js"></script>

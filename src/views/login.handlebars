@@ -1,0 +1,39 @@
+<div class="container">
+<form action="/api/sessions/login" method="POST" id="form_add">
+    <label for="email">Email: <input type="email" name="email"></label><br>
+    <label for="password">Password: <input type="password" name="password" placeholder="password"></label><br>
+    <input type="submit" value="Iniciar Sesión" class="submit-button">
+    <a href="/register" class="register-link">Registrarse</a>    
+    <a href="/api/sessions/github" class="github-link">Iniciar Sesión con GitHub</a>
+</form>
+</div>
+<script>
+    const handleSubmit= (evt)=>{
+        evt.preventDefault()
+        let email = document.querySelector('input[name="email"]').value
+        let password = document.querySelector('input[name="password"]').value
+
+        fetch('/api/sessions/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type':'application/json',
+                //'Authorization': `Bearer ${localstorage.getItem(authToken)}`
+            },
+            body: JSON.stringify({
+                email,
+                password
+            })
+        })
+        .then(resp => resp.json())
+        .then(resp => {
+            console.log(resp)
+            console.log(resp.status.error==='error')
+            
+            if(resp.status==='error') document.querySelector('#mensaje').textContent = resp.error
+        })
+
+    }
+
+    let form = document.querySelector('#form').addEventListener('submit', handleSubmit)
+   
+</script>

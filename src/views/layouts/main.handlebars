@@ -1,0 +1,30 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{title}}</title>
+    <link rel="stylesheet" type="text/css" href="/css/{{style}}" />
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="/socket.io/socket.io.js"></script>
+      <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.2/dist/sweetalert2.min.css"
+    />
+  </head>
+  <body>
+      <header>
+    <div>
+      <h1>Bienvenido, {{username}}!</h1>
+      <h3>Tu rol: {{role}}</h3>
+      <div class="button-container">
+        <a href="/cart" class="button - btnMin">Ir al Carrito</a>
+        <a href="/products" class="button - btnMin">Volver a Productos</a>
+        <a href="/api/sessions/logout" class="button - btnMinn">Logout</a>
+      </div>
+    </div>
+  </header>
+
+    {{{body}}}
+
+  </body>
+</html>

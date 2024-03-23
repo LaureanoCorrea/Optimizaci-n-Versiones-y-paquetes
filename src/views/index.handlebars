@@ -1,0 +1,41 @@
+<main>
+
+    <h1>Probador de subidor de archivo</h1>
+  <div id="chatWindow">
+  <form id="uploader" action="/upload" method="POST" enctype="multipart/form-data">
+    <input type="file" name="myFile" />
+    <button>enviar</button>
+  </form>
+  </div>
+
+  <div>
+    <h1>Listado de Productos existentes en catálogo</h1>
+
+    <table id="product_table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Código</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each productos}}
+          <tr>
+            <td>{{this._doc.title}}</td>
+            <td>{{this._doc.description}}</td>
+            <td>$ {{this._doc.price}}</td>
+            <td>{{this._doc.code}}</td>
+          </tr>
+        {{/each}}
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script
+  src="https://cdn.jsdelivr.net/npm/sweetalert2@11.10.2/dist/sweetalert2.all.min.js"
+></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/index.js"></script>
