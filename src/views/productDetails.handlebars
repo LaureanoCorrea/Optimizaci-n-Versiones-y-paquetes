@@ -1,0 +1,63 @@
+<main>
+  <h1>Detalles del producto</h1>
+  <div id="productList">
+    <table id="product_table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Imagen</th>
+          <th>Código</th>
+          <th>Stock</th>
+          <th>Categoría</th>
+          <th>Agregar al carrito</th>
+
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>{{product.title}}</td>
+          <td> {{product.description}}</td>
+          <td> $ {{product.price}}</td>
+          <td id="product_table_img"><img class="product-thumbnail" src="{{product.thumbnail}}"></td>
+          <td> {{product.code}}</td>
+          <td> {{product.stock}}</td>
+          <td> {{product.category}}</td>
+          <td><button onclick="add('{{product._id}}',1)">✓</button></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+<script>
+  function add(pid, quantity) { 
+  fetch('/api/carts/add', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      pid: pid,
+      quantity: quantity
+    })
+  })
+  .then(response => {
+    if (response.ok) {
+      return response.json();
+    }
+    throw new Error('Error al agregar producto al carrito');
+  })
+  .then(data => {
+    console.log('Producto agregado al carrito:', data);
+    // Redireccionar a la página de product-added
+    window.location.href = '/product-added/' + pid;
+  })
+  .catch(error => {
+    console.error('Error:', error);
+  });
+}
+
+</script>
+
+</main>

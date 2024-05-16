@@ -1,0 +1,198 @@
+<main>
+  <div>
+    <h1>Contenido del carrito:</h1>
+
+    <table id="product_table">
+      <thead>
+        <tr>
+          <th>Nombre</th>
+          <th>Descripción</th>
+          <th>Precio</th>
+          <th>Cantidad</th>
+          <th>Imagen</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#each cart.products}}
+          <tr id="product_{{this._id}}">
+            <td>{{this.product.title}}</td>
+            <td>{{this.product.description}}</td>
+            <td>$ {{this.product.price}}</td>
+            <td class="product_quantity" contenteditable="true">{{this.quantity}}</td>
+            <td id="product_table_img"><img class="product-thumbnail" src="{{product.thumbnail}}"></td>
+            <td>
+              <button onclick="mostrarFormulario('{{this._id}}', '{{this.quantity}}')">Editar</button>
+            </td>
+            <td>
+              <button onclick="borrarProducto('{{this._id}}')">Eliminar</button>
+            </td>
+          </tr>
+        {{/each}}
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="4"></td>
+          <td>Subtotal:</td>
+          <td id="subtotal" colspan="1">$0.00</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="product_table">
+      <button id="vaciar_carrito_btn">Vaciar Carrito</button>
+      <button id="comprar_btn">Terminar Compra</button>
+    </div>
+  </div>
+</main>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Calcular el subtotal al cargar la página
+    calcularSubtotal();
+
+    //  botón para vaciar el carrito
+    document.getElementById('vaciar_carrito_btn').addEventListener('click', vaciarCarrito);
+
+    //  botón para comprar
+    document.getElementById('comprar_btn').addEventListener('click', terminarCompra);
+    
+    // detectar cambios en la cantidad y recalcular el subtotal
+    const quantityInputs = document.querySelectorAll('.product_quantity');
+    
+    quantityInputs.forEach(input => {
+      input.addEventListener('input', calcularSubtotal);
+    });
+  });
+
+  function terminarCompra() {
+  // Obtener el subtotal de la compra desde el elemento HTML
+  const subtotal = parseFloat(document.getElementById('subtotal').textContent.replace('$', ''));
+
+  // Crear la solicitud para finalizar la compra
+  fetch('/api/carts/:cid/purchase', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      total: subtotal
+    })
+  })
+  .then(response => {
+    // Verificar si la respuesta es exitosa
+    if (response.ok) {
+      // Si la respuesta es exitosa, convertir los datos de la respuesta a JSON
+      return response.json();
+    }
+    // Si la respuesta no es exitosa, lanzar un error
+    throw new Error('Error al terminar la compra');
+  })
+  .then(data => {
+    // Manejar los datos de la respuesta
+    console.log('Compra finalizada:', data);
+    // Recargar la página después de completar la compra
+    location.reload();
+  })
+  .catch(error => {
+    // Capturar y manejar cualquier error
+    console.error('Error:', error);
+  });
+}
+
+  function mostrarFormulario(pid, cantidadActual) {
+    const nuevaCantidad = prompt("Ingrese la nueva cantidad:", cantidadActual);
+    if (nuevaCantidad !== null) {
+      fetch(`/api/carts/${pid}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ quantity: nuevaCantidad })
+      })
+      .then(response => {
+        if (response.ok) {
+          return response.json();
+        }
+        throw new Error('Error al actualizar la cantidad del producto en el carrito');
+      })
+      .then(data => {
+        console.log('Cantidad actualizada:', data);
+
+        // Actualizar cantidad en la interfaz
+        const productElement = document.querySelector(`#product_${pid}`);
+        productElement.querySelector('.product_quantity').textContent = nuevaCantidad;
+
+        // Recalcular el subtotal después de la actualización
+        calcularSubtotal();
+      })
+      .catch(error => { 
+        console.error('Error:', error);
+      });
+    }
+  }
+
+  function calcularSubtotal() {
+    let subtotal = 0;
+    const rows = document.querySelectorAll('#product_table tbody tr');
+    rows.forEach(row => {
+      const price = parseFloat(row.querySelector('td:nth-child(3)').textContent.replace('$', ''));
+      const quantity = parseInt(row.querySelector('.product_quantity').textContent);
+      subtotal += price * quantity;
+    });
+    // Actualizar el subtotal 
+    document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+  }
+
+async function borrarProducto(pid) {
+  try {
+    const response = await fetch(`/api/carts/errase/${pid}`, {
+      method: 'DELETE'
+    });
+    if (response.status === 200) {
+      // Eliminar la fila correspondiente de la tabla del carrito
+      const productRow = document.getElementById(`product_${pid}`);
+      if (productRow) {
+        productRow.remove(); // Eliminar la fila de la tabla
+        console.log('Fila del proyecto eliminada de la tabla');
+      } else {
+        console.error('No se encontró la fila del producto en la tabla'); // Mensaje de error en caso de que no se encuentre la fila
+      }
+    } else {
+      // Manejar el caso de error
+      console.error('Error al eliminar el producto del carrito');
+    }
+  } catch (error) {
+    console.error('Error al eliminar el producto del carrito:', error);
+  }
+}
+
+async function vaciarCarrito() {
+    try {
+        const response = await fetch(`/api/carts/vaciar`, {
+            method: "DELETE",
+        });
+        if (response.ok) {
+            const subtotalElement = document.getElementById("subtotal");
+            if (subtotalElement) {
+                subtotalElement.textContent = "$0.00";
+            } else {
+                console.warn("El elemento #subtotal no está presente en la página.");
+            }
+            const productList = document.getElementById("product_table");
+            if (productList) {
+                productList.innerHTML = ""; // Limpiar el contenido de la tabla
+                // Agregar mensaje "No hay Productos en el Carrito"
+                productList.innerHTML = '<tr><td colspan="5">No hay Productos en el Carrito</td></tr>';
+            } else {
+                console.warn("El elemento #product_table no está presente en la página.");
+            }
+            console.log("Carrito vaciado correctamente");
+            // Actualizar la página después de vaciar el carrito
+            location.reload(); // Esto recarga la página
+        } else {
+            console.error("Error al vaciar el carrito");
+        }
+    } catch (error) {
+        console.error("Error al vaciar el carrito:", error);
+    }
+}
+</script>

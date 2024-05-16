@@ -1,0 +1,35 @@
+
+  <h1>Listado de Productos</h1>
+  <table id="product_table">
+    <thead>
+      <tr>
+        <th>Nombre</th>
+        <th>Descripción</th>
+        <th>Precio</th>
+        <th>Código</th>
+      </tr>
+    </thead>
+    <tbody>
+      {{#each products}}
+        <tr>
+          <td><a href="/productDetails/{{this._id}}">{{this.title}}</a></td>
+          <td>{{this.description}}</td>
+          <td>$ {{this.price}}</td>
+          <td>{{this.code}}</td>
+        </tr>
+      {{/each}}
+    </tbody>
+  </table>
+  <div class="button-container">
+    {{#if hasPrevPage}}
+      <a href="/products?page={{prevPage}}" class="button">Anterior</a>
+    {{/if}}
+    <div class="page-number-container">
+      <span class="page-number">{{page}}</span>
+    </div>
+    {{#if hasNextPage}}
+      <a href="/products?page={{nextPage}}" class="button">Siguiente</a>
+    {{/if}}
+  </div>
+
+</div>

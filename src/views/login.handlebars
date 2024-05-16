@@ -1,0 +1,59 @@
+<div class="container">
+<form action="/api/sessions/login" method="POST" id="form_add">
+    <label for="email">Email: <input type="email" name="email"></label><br>
+    <label for="password">Password: <input type="password" name="password" placeholder="password"></label><br>
+    <input type="submit" value="Iniciar Sesión" class="submit-button">
+    <a href="/register" class="register-link">Registrarse</a>    
+    <a href="/api/sessions/github" class="github-link">Iniciar Sesión con GitHub</a>
+</form>
+</div>
+
+<script>
+    const handleSubmit = (evt) => {
+    evt.preventDefault();
+    let email = document.querySelector('input[name="email"]').value;
+    let password = document.querySelector('input[name="password"]').value;
+
+    fetch('/api/sessions/login', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        email,
+        password
+    })
+})
+.then(resp => {
+    if (!resp.ok) {
+        throw new Error('Hubo un error en la solicitud.');
+    }
+    // Verificar si la respuesta es un JSON válido
+    const contentType = resp.headers.get('content-type');
+    if (contentType && contentType.includes('application/json')) {
+        return resp.json();
+    } else {
+        throw new Error('La respuesta del servidor no es un JSON válido.');
+    }
+})
+.then(data => {
+    console.log(data);
+    if (data.status === 'error') {
+        document.querySelector('#mensaje').textContent = data.error;
+    }
+})
+.catch(error => {
+    console.error('Error en la solicitud:', error);
+    // Aquí puedes manejar el error de manera adecuada, por ejemplo, mostrar un mensaje al usuario
+});
+
+let form = document.querySelector('#form_add');
+if (form) {
+    form.addEventListener('submit', handleSubmit);
+} else {
+    console.error("El elemento form no se encontró en el documento.");
+}
+    }
+
+
+</script>
